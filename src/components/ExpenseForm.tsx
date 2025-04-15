@@ -1,4 +1,4 @@
-import { useState, ChangeEvent, FormEvent } from "react";
+import { useState, ChangeEvent, FormEvent, useEffect } from "react";
 import DatePicker from "react-date-picker";
 
 import { DraftExpense, Value } from "../types";
@@ -18,7 +18,17 @@ export default function ExpenseForm() {
   });
   const [error, setError] = useState("");
 
-  const { dispatch } = useBudget();
+  const { dispatch, state } = useBudget();
+
+  useEffect(() => {
+    if (state.editingId) {
+      const editingExpense = state.expenses.filter(
+        (currentExpense) => currentExpense.id === state.editingId
+      )[0];
+      setExpense(editingExpense);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.editingId]);
 
   const handleChange = (
     e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLSelectElement>
@@ -53,7 +63,7 @@ export default function ExpenseForm() {
       expenseName: "",
       category: "",
       date: new Date(),
-    })
+    });
   };
 
   return (
