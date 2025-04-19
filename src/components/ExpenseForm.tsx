@@ -17,8 +17,9 @@ export default function ExpenseForm() {
     date: new Date(),
   });
   const [error, setError] = useState("");
+  const [previousAmount, setPreviousAmount] = useState(0);
 
-  const { dispatch, state } = useBudget();
+  const { dispatch, state, remainingBudget } = useBudget();
 
   useEffect(() => {
     if (state.editingId) {
@@ -26,6 +27,7 @@ export default function ExpenseForm() {
         (currentExpense) => currentExpense.id === state.editingId
       )[0];
       setExpense(editingExpense);
+      setPreviousAmount(editingExpense.amount);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.editingId]);
@@ -56,6 +58,11 @@ export default function ExpenseForm() {
       return;
     }
 
+    if (expense.amount - previousAmount > remainingBudget) {
+      setError("El gasto no puede ser mayor al presupuesto restante");
+      return;
+    }
+
     if (state.editingId) {
       dispatch({
         type: "update-expense",
@@ -71,6 +78,7 @@ export default function ExpenseForm() {
       category: "",
       date: new Date(),
     });
+    setPreviousAmount(0);
   };
 
   return (
